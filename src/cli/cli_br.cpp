@@ -1173,7 +1173,6 @@ otError Br::Process(Arg aArgs[])
 #endif
         CmdEntry("disable"),
         CmdEntry("enable"),
-        CmdEntry("infraif"),
         CmdEntry("init"),
 #if OPENTHREAD_CONFIG_BORDER_ROUTING_MULTI_AIL_DETECTION_ENABLE
         CmdEntry("multiail"),
@@ -1194,8 +1193,8 @@ otError Br::Process(Arg aArgs[])
         CmdEntry("ra"),
         CmdEntry("raoptions"),
         CmdEntry("rdnsstable"),
-        CmdEntry("rioprf"),
         CmdEntry("rio"),
+        CmdEntry("rioprf"),
         CmdEntry("routeprf"),
         CmdEntry("routers"),
         CmdEntry("state"),
