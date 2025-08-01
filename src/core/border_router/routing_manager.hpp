@@ -738,9 +738,9 @@ public:
      * @retval kErrorNone        Got the next RIO entry.
      * @retval kErrorNotFound    No more RIO entries.
      */
-    Error GetNextAdvertisedRio(PrefixTableIterator &aIterator, Ip6::Prefix &aPrefix, RoutePreference &aPreference) const
+    Error GetNextAdvertisedRio(uint16_t &aIndex, Ip6::Prefix &aPrefix, RoutePreference &aPreference) const
     {
-        return mRioAdvertiser.GetNextAdvertisedRio(aIterator, aPrefix, aPreference);
+        return mRioAdvertiser.GetNextAdvertisedRio(aIndex, aPrefix, aPreference);
     }
 
 private:
@@ -1505,7 +1505,7 @@ private:
         Error           InvalidatPrevRios(RouterAdvert::TxMessage &aRaMessage);
         bool            HasAdvertised(const Ip6::Prefix &aPrefix) const { return mPrefixes.ContainsMatching(aPrefix); }
         uint16_t        GetAdvertisedRioCount(void) const { return mPrefixes.GetLength(); }
-        Error           GetNextAdvertisedRio(PrefixTableIterator &aIterator, Ip6::Prefix &aPrefix, RoutePreference &aPreference) const;
+        Error           GetNextAdvertisedRio(uint16_t &aIndex, Ip6::Prefix &aPrefix, RoutePreference &aPreference) const;
         void            HandleTimer(void);
 
     private:
