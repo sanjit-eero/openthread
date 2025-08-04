@@ -174,6 +174,17 @@ public:
     Error Init(uint32_t aInfraIfIndex, bool aInfraIfIsRunning);
 
     /**
+     * Gets the interface index of the currently configured infrastructure interface.
+     *
+     * @param[out] aInfraIfIndex      A reference to output the interface index.
+     * @param[out] aInfraIfIsRunning  A reference to output whether the interface is running.
+     *
+     * @retval kErrorNone           Successfully retrieved the interface information.
+     * @retval kErrorInvalidState   The Border Routing Manager is not initialized.
+     */
+    Error GetInfraIfInfo(uint32_t &aInfraIfIndex, bool &aInfraIfIsRunning) const;
+
+    /**
      * Enables/disables the Border Routing Manager.
      *
      * @note  The Border Routing Manager is enabled by default.
@@ -919,7 +930,7 @@ private:
     class RdnssAddress
     {
     public:
-        void                SetFrom(const RecursiveDnsServerOption &aRdnss, uint8_t aAddressIndex);
+        void                SetFrom(const RecursiveDnsServerOption &aRdnss, uint16_t aAddressIndex);
         const Ip6::Address &GetAddress(void) const { return mAddress; }
         const TimeMilli    &GetLastUpdateTime(void) const { return mLastUpdateTime; }
         uint32_t            GetLifetime(void) const { return mLifetime; }
@@ -1884,22 +1895,22 @@ private:
 // Template specializations and declarations
 
 template <>
-inline RoutingManager::RxRaTracker::Entry<RoutingManager::OnLinkPrefix>
-    &RoutingManager::RxRaTracker::SharedEntry::GetEntry(void)
+inline RoutingManager::RxRaTracker::Entry<RoutingManager::OnLinkPrefix> &RoutingManager::RxRaTracker::SharedEntry::
+    GetEntry(void)
 {
     return mOnLinkEntry;
 }
 
 template <>
-inline RoutingManager::RxRaTracker::Entry<RoutingManager::RoutePrefix>
-    &RoutingManager::RxRaTracker::SharedEntry::GetEntry(void)
+inline RoutingManager::RxRaTracker::Entry<RoutingManager::RoutePrefix> &RoutingManager::RxRaTracker::SharedEntry::
+    GetEntry(void)
 {
     return mRouteEntry;
 }
 
 template <>
-inline RoutingManager::RxRaTracker::Entry<RoutingManager::RdnssAddress>
-    &RoutingManager::RxRaTracker::SharedEntry::GetEntry(void)
+inline RoutingManager::RxRaTracker::Entry<RoutingManager::RdnssAddress> &RoutingManager::RxRaTracker::SharedEntry::
+    GetEntry(void)
 {
     return mRdnssAddrEntry;
 }

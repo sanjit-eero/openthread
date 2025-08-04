@@ -38,6 +38,7 @@
 
 #include <openthread/radio_stats.h>
 #include <openthread/platform/crypto.h>
+#include <openthread/platform/diag.h>
 #include <openthread/platform/radio.h>
 
 #include "common/locator.hpp"
@@ -120,11 +121,16 @@ public:
     static constexpr uint8_t  kChannelMax        = OPENTHREAD_CONFIG_PLATFORM_RADIO_PROPRIETARY_CHANNEL_MAX;
 #endif
 
+    static constexpr uint8_t kFrameMinSize = OT_RADIO_FRAME_MIN_SIZE;
+    static constexpr uint8_t kFrameMaxSize = OT_RADIO_FRAME_MAX_SIZE;
+
     static const uint8_t kSupportedChannelPages[kNumChannelPages];
 
     static constexpr int8_t kInvalidRssi = OT_RADIO_RSSI_INVALID; ///< Invalid RSSI value.
 
     static constexpr int8_t kDefaultReceiveSensitivity = -110; ///< Default receive sensitivity (in dBm).
+
+    static constexpr int8_t kInvalidPower = OT_RADIO_POWER_INVALID;
 
     static_assert((OPENTHREAD_CONFIG_RADIO_2P4GHZ_OQPSK_SUPPORT || OPENTHREAD_CONFIG_RADIO_915MHZ_OQPSK_SUPPORT ||
                    OPENTHREAD_CONFIG_PLATFORM_RADIO_PROPRIETARY_SUPPORT),
@@ -847,6 +853,22 @@ public:
      */
     uint32_t GetBusLatency(void);
 
+#if OPENTHREAD_CONFIG_DIAG_ENABLE
+    /**
+     * Enables/disables the factory diagnostics mode.
+     *
+     * @param[in]  aMode  TRUE to enable diagnostics mode, FALSE otherwise.
+     */
+    void SetDiagMode(bool aMode);
+
+    /**
+     * Gets the current diagnostic mode of the radio.
+     *
+     * @returns TRUE if factory diagnostics mode is enabled, FALSE otherwise.
+     */
+    bool GetDiagMode(void);
+#endif
+
 private:
     otInstance *GetInstancePtr(void) const { return reinterpret_cast<otInstance *>(&InstanceLocator::GetInstance()); }
 
@@ -1029,6 +1051,10 @@ inline uint32_t Radio::GetBusSpeed(void) { return otPlatRadioGetBusSpeed(GetInst
 
 inline uint32_t Radio::GetBusLatency(void) { return otPlatRadioGetBusLatency(GetInstancePtr()); }
 
+#if OPENTHREAD_CONFIG_DIAG_ENABLE
+inline void Radio::SetDiagMode(bool aMode) { otPlatDiagModeSet(aMode); }
+inline bool Radio::GetDiagMode(void) { return otPlatDiagModeGet(); }
+#endif
 #else //----------------------------------------------------------------------------------------------------------------
 
 inline otRadioCaps Radio::GetCaps(void)
@@ -1085,14 +1111,14 @@ inline Error Radio::ReceiveAt(uint8_t, uint32_t, uint32_t) { return kErrorNone; 
 #endif
 
 #if OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE
-inline void Radio::UpdateCslSampleTime(uint32_t) {}
+inline void  Radio::UpdateCslSampleTime(uint32_t) {}
 
 inline Error Radio::EnableCsl(uint32_t, Mac::ShortAddress aShortAddr, const Mac::ExtAddress &)
 {
     return kErrorNotImplemented;
 }
 
-inline Error Radio::ResetCsl(void) { return kErrorNotImplemented; }
+inline Error    Radio::ResetCsl(void) { return kErrorNotImplemented; }
 #endif
 
 #if OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE || OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE || \
@@ -1133,6 +1159,10 @@ inline uint32_t Radio::GetBusSpeed(void) { return 0; }
 
 inline uint32_t Radio::GetBusLatency(void) { return 0; }
 
+#if OPENTHREAD_CONFIG_DIAG_ENABLE
+inline void     Radio::SetDiagMode(bool) {}
+inline bool     Radio::GetDiagMode(void) { return false; }
+#endif
 #endif // #if OPENTHREAD_CONFIG_RADIO_LINK_IEEE_802_15_4_ENABLE
 
 } // namespace ot

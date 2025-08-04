@@ -117,6 +117,18 @@ exit:
     return error;
 }
 
+Error RoutingManager::GetInfraIfInfo(uint32_t &aInfraIfIndex, bool &aInfraIfIsRunning) const
+{
+    Error error = kErrorNone;
+
+    VerifyOrExit(IsInitialized(), error = kErrorInvalidState);
+    aInfraIfIndex     = mInfraIf.GetIfIndex();
+    aInfraIfIsRunning = mInfraIf.IsRunning();
+
+exit:
+    return error;
+}
+
 Error RoutingManager::SetEnabled(bool aEnabled)
 {
     Error error = kErrorNone;
@@ -267,7 +279,7 @@ Error RoutingManager::LoadOrGenerateRandomBrUlaPrefix(void)
         mBrUlaPrefix.SetSubnetId(0);
         mBrUlaPrefix.SetLength(kBrUlaPrefixLength);
 
-        IgnoreError(Get<Settings>().Save<Settings::BrUlaPrefix>(mBrUlaPrefix));
+        Get<Settings>().Save<Settings::BrUlaPrefix>(mBrUlaPrefix);
         generated = true;
     }
 
@@ -1069,7 +1081,7 @@ void RoutingManager::RoutePrefix::CopyInfoTo(PrefixTableEntry &aEntry, TimeMilli
 //---------------------------------------------------------------------------------------------------------------------
 // RdnssAddress
 
-void RoutingManager::RdnssAddress::SetFrom(const RecursiveDnsServerOption &aRdnss, uint8_t aAddressIndex)
+void RoutingManager::RdnssAddress::SetFrom(const RecursiveDnsServerOption &aRdnss, uint16_t aAddressIndex)
 {
     mAddress        = aRdnss.GetAddressAt(aAddressIndex);
     mLifetime       = aRdnss.GetLifetime();
@@ -1555,7 +1567,7 @@ void RoutingManager::RxRaTracker::ProcessRecursiveDnsServerOption(const Recursiv
 
     lifetime = aRdnss.GetLifetime();
 
-    for (uint8_t index = 0; index < aRdnss.GetNumAddresses(); index++)
+    for (uint16_t index = 0; index < aRdnss.GetNumAddresses(); index++)
     {
         const Ip6::Address &address = aRdnss.GetAddressAt(index);
 
@@ -3001,7 +3013,7 @@ void RoutingManager::OnLinkPrefixManager::Init(void)
         // We clear the entries in `Settings` and re-write the entries
         // from `mOldLocalPrefixes` array.
 
-        IgnoreError(Get<Settings>().DeleteAllBrOnLinkPrefixes());
+        Get<Settings>().DeleteAllBrOnLinkPrefixes();
 
         for (OldPrefix &oldPrefix : mOldLocalPrefixes)
         {
@@ -3378,7 +3390,7 @@ void RoutingManager::OnLinkPrefixManager::DeprecateOldPrefix(const Ip6::Prefix &
 
         removedPrefix = entry->mPrefix;
 
-        IgnoreError(Get<Settings>().RemoveBrOnLinkPrefix(removedPrefix));
+        Get<Settings>().RemoveBrOnLinkPrefix(removedPrefix);
     }
 
     entry->mPrefix     = aPrefix;
@@ -3415,7 +3427,7 @@ void RoutingManager::OnLinkPrefixManager::HandleTimer(void)
     case kDeprecating:
         if (nextExpireTime.GetNow() >= mExpireTime)
         {
-            IgnoreError(Get<Settings>().RemoveBrOnLinkPrefix(mLocalPrefix));
+            Get<Settings>().RemoveBrOnLinkPrefix(mLocalPrefix);
             SetState(kIdle);
         }
         else
@@ -3440,7 +3452,7 @@ void RoutingManager::OnLinkPrefixManager::HandleTimer(void)
     for (const Ip6::Prefix &prefix : expiredPrefixes)
     {
         LogInfo("Old local on-link prefix %s expired", prefix.ToString().AsCString());
-        IgnoreError(Get<Settings>().RemoveBrOnLinkPrefix(prefix));
+        Get<Settings>().RemoveBrOnLinkPrefix(prefix);
         mOldLocalPrefixes.RemoveMatching(prefix);
     }
 
@@ -4164,6 +4176,7 @@ void RoutingManager::Nat64PrefixManager::Discover(void)
     else
     {
         LogWarn("Failed to discover infraif NAT64 prefix: %s", ErrorToString(error));
+        Get<RoutingManager>().ScheduleRoutingPolicyEvaluation(kAfterRandomDelay);
     }
 }
 

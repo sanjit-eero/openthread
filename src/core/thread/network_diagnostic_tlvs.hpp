@@ -495,7 +495,10 @@ public:
      *
      * @returns The Timeout value.
      */
-    uint8_t GetTimeout(void) const { return ReadBits<uint16_t, kTimeoutMask>(GetTimeoutChildId()); }
+    uint8_t GetTimeout(void) const
+    {
+        return static_cast<uint8_t>(ReadBits<uint16_t, kTimeoutMask>(GetTimeoutChildId()));
+    }
 
     /**
      * Sets the Timeout value.
@@ -1041,7 +1044,7 @@ public:
 
 private:
     static constexpr uint16_t kIsLastFlag = 1 << 15;
-    static constexpr uint16_t kIndexMask  = 0x7f;
+    static constexpr uint16_t kIndexMask  = 0x7fff;
 
     uint16_t GetFlagsIndex(void) const { return BigEndian::HostSwap16(mFlagsIndex); }
     void     SetFlagsIndex(uint16_t aFlagsIndex) { mFlagsIndex = BigEndian::HostSwap16(aFlagsIndex); }
