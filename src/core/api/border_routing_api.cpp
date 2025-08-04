@@ -343,9 +343,11 @@ otError otBorderRoutingGetNextAdvertisedRio(otInstance                         *
     AssertPointerIsNotNull(aIndex);
     AssertPointerIsNotNull(aPrefix);
     AssertPointerIsNotNull(aPreference);
+    // SuccessOrExit(error = AsCoreType(aInstance).Get<BorderRouter::RoutingManager>().GetFavoredOmrPrefix(
+    //                  AsCoreType(aPrefix), preference));
 
-    error = AsCoreType(aInstance).Get<BorderRouter::RoutingManager>().GetNextAdvertisedRio(
-        *aIndex, AsCoreType(aPrefix), preference);
+    SuccessOrExit(error = (aInstance).Get<BorderRouter::RoutingManager>().GetNextAdvertisedRio(
+        *aIndex, AsCoreType(aPrefix), preference));
     
     if (error == OT_ERROR_NONE)
     {
